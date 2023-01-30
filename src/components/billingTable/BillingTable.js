@@ -15,26 +15,25 @@ const BillingTable = () => {
   const [fullDataLen, setFullDataLen] = useState();
   const [searchBill, setSearchBill] = useState([]);
 
-  async function fetchData() {
-    try {
-      let res = await fetch(
-        `https://pw-hack-backend-production.up.railway.app/api/billing-list?page=${activePage}&limit=${10}`
-      );
-      let result = await res.json();
-      if (result.data.length) {
-        setBillingData(result.data);
-        setFullDataLen(result.len);
-        let amount = result.data.reduce((total, bill) => {
-          return total + bill.payedAmount;
-        }, 0);
-        setTotalPayed(amount);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   useEffect(() => {
+    async function fetchData() {
+      try {
+        let res = await fetch(
+          `https://pw-hack-backend-production.up.railway.app/api/billing-list?page=${activePage}&limit=${10}`
+        );
+        let result = await res.json();
+        if (result.data.length) {
+          setBillingData(result.data);
+          setFullDataLen(result.len);
+          let amount = result.data.reduce((total, bill) => {
+            return total + bill.payedAmount;
+          }, 0);
+          setTotalPayed(amount);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
     fetchData();
   }, [modalShow, refetch, activePage]);
 
@@ -93,7 +92,7 @@ const BillingTable = () => {
       return;
     }
 
-    const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const mailformat = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/;
     const phoneFormat = /^(?:(?:\+|00)88|01)?\d{11}$/;
 
     if (searchValue.match(mailformat)) {
