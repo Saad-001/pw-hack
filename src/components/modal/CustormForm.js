@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const CustormForm = ({ setError, setSuccess }) => {
-  const [billInfo, setBillInfo] = useState({
+  const [billInfo] = useState({
     fullName: "",
     email: "",
     phone: "",

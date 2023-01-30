@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../layout/Layout";
 
 const Login = () => {
-  const [userInfo, setUserInfo] = useState({ email: "", password: "" });
+  const [userInfo] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
