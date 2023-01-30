@@ -13,11 +13,12 @@ const BillingTable = () => {
   const [totalPayed, setTotalPayed] = useState();
   const [activePage, setActivePage] = useState(1);
   const [fullDataLen, setFullDataLen] = useState();
+  const [searchBill, setSearchBill] = useState([]);
 
   async function fetchData() {
     try {
       let res = await fetch(
-        `http://localhost:8000/api/billing-list?page=${activePage}&limit=${10}`
+        `https://pw-hack-backend-production.up.railway.app/api/billing-list?page=${activePage}&limit=${10}`
       );
       let result = await res.json();
       if (result.data.length) {
@@ -37,6 +38,48 @@ const BillingTable = () => {
     fetchData();
   }, [modalShow, refetch, activePage]);
 
+  async function seachData(identity, value) {
+    if (identity === "email") {
+      try {
+        let res = await fetch(
+          `https://pw-hack-backend-production.up.railway.app/api/search?email=${value}`
+        );
+        let result = await res.json();
+        if (result[0].fullName) {
+          setSearchBill(result);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else if (identity === "phone") {
+      try {
+        let res = await fetch(
+          `https://pw-hack-backend-production.up.railway.app/api/search?phone=${value}`
+        );
+        let result = await res.json();
+        console.log(result);
+        if (result[0].fullName) {
+          setSearchBill(result);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      try {
+        let res = await fetch(
+          `https://pw-hack-backend-production.up.railway.app/api/search?name=${value}`
+        );
+        let result = await res.json();
+        if (result[0].fullName) {
+          console.log(result);
+          setSearchBill(result);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
+
   const onChangeHandler = (e) => {
     setSearchValue(e.target.value);
     console.log(searchValue);
@@ -44,6 +87,26 @@ const BillingTable = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (searchValue === "") {
+      alert("please enter your fullName or email or phone number!");
+      return;
+    }
+
+    const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const phoneFormat = /^(?:(?:\+|00)88|01)?\d{11}$/;
+
+    if (searchValue.match(mailformat)) {
+      seachData("email", searchValue);
+      setSearchBill([]);
+    } else if (searchValue.match(phoneFormat)) {
+      seachData("phone", searchValue);
+      setSearchBill([]);
+    } else {
+      seachData("name", searchValue);
+      setSearchBill([]);
+    }
+    setSearchValue("");
   };
 
   return (
@@ -67,6 +130,33 @@ const BillingTable = () => {
         </Button>
         <ModalForm show={modalShow} onHide={() => setModalShow(false)} />
       </div>
+      {searchBill.length > 0 ? (
+        <Table className="mt-3 mb-5">
+          <thead>
+            <tr>
+              <th>Billing ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Payed Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {searchBill.map((bill, idx) => (
+              <BillingRow
+                key={idx}
+                data={bill}
+                setRefetch={setRefetch}
+                refetch={refetch}
+                setModalShow={setModalShow}
+              />
+            ))}
+          </tbody>
+        </Table>
+      ) : (
+        <></>
+      )}
       <Table striped bordered hover>
         <thead>
           <tr>

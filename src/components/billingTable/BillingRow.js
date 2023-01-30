@@ -1,36 +1,29 @@
-import React, { useState } from "react";
-import CustormForm from "../modal/CustormForm";
-
-const updateBill = (setError, setSuccess, id) => {
-  console.log(id);
-  <CustormForm setError={setError} setSuccess={setSuccess} billId={id} />;
-};
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const BillingRow = ({ data, setModalShow, setRefetch, refetch }) => {
   const { _id, fullName, email, phone, payedAmount } = data;
-  // const [error, setError] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const editHandler = (id) => {
     setModalShow(true);
-    updateBill(setError, setSuccess, id);
+    navigate(`/billsTable?id=${id}`);
   };
 
   async function deleteHandler(id) {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/delete-billing/${id}`,
+        `https://pw-hack-backend-production.up.railway.app/api/delete-billing/${id}`,
         {
           method: "DELETE",
         }
       );
       const response = await res.json();
       if (response.success === false) {
-        setError(response.message);
+        alert("something went wrong!");
       } else {
         setRefetch(!refetch);
-        setError("");
+        alert("Bill deleted successfully!");
       }
     } catch (err) {}
   }

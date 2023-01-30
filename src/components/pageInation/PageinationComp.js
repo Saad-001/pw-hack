@@ -23,13 +23,15 @@ const generatePage = (num, active, setActive) => {
 
 const PageinationComp = ({ dataLength, activePage, setActivePage }) => {
   const [pageNum, setPageNum] = useState();
-  console.log(dataLength);
+
   useEffect(() => {
     const div_val = dataLength / 10;
     const mod_val = dataLength % 10;
     if (mod_val > 0) {
       let res = div_val + 1;
       setPageNum(res);
+    } else {
+      setPageNum(div_val);
     }
   }, [dataLength]);
 

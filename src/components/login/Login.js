@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Nav } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useNavigate } from "react-router-dom";
@@ -15,17 +16,20 @@ const Login = () => {
 
   async function loginUser() {
     try {
-      const res = await fetch(`http://localhost:8000/api/login/`, {
-        method: "POST",
-        body: JSON.stringify(userInfo),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `https://pw-hack-backend-production.up.railway.app/api/login/`,
+        {
+          method: "POST",
+          body: JSON.stringify(userInfo),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const response = await res.json();
       if (response.userName) {
-        localStorage.setItem("userName", response.userName);
-        localStorage.setItem("email", response.email);
+        sessionStorage.setItem("userName", response.userName);
+        sessionStorage.setItem("email", response.email);
         setError("");
         navigate("/billsTable");
       } else {
@@ -63,8 +67,10 @@ const Login = () => {
             onChange={onChangeHandler}
             required
           />
-          <Form.Text className="text-muted">
-            We'll never share your password with anyone else.
+          <Form.Text className="text-primary">
+            <Nav.Link href="/registration">
+              Don't have an accout? please sign up
+            </Nav.Link>
           </Form.Text>
         </Form.Group>
         <Button variant="primary" type="submit">

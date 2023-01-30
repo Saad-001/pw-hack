@@ -21,17 +21,20 @@ const Register = () => {
 
   async function register() {
     try {
-      const res = await fetch(`http://localhost:8000/api/registration`, {
-        method: "POST",
-        body: JSON.stringify(userInfo),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `https://pw-hack-backend-production.up.railway.app/api/registration`,
+        {
+          method: "POST",
+          body: JSON.stringify(userInfo),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const response = await res.json();
       if (response.userName) {
-        localStorage.setItem("userName", response.userName);
-        localStorage.setItem("email", response.email);
+        sessionStorage.setItem("userName", response.userName);
+        sessionStorage.setItem("email", response.email);
         setError("");
         navigate("/billsTable");
       } else {

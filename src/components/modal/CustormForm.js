@@ -1,51 +1,76 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const CustormForm = ({ setError, setSuccess, billId }) => {
+const CustormForm = ({ setError, setSuccess }) => {
   const [billInfo, setBillInfo] = useState({
     fullName: "",
     email: "",
     phone: "",
     payedAmount: "",
   });
+  const [billId, setBillId] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let s = location.search;
+    if (s.length) {
+      setBillId(s.split("=")[1]);
+    }
+  }, [location.pathname, location.search]);
 
   const onChangeHandler = (e) => {
     billInfo[e.target.name] = e.target.value;
+    if (e.target.name === "phone") {
+      e.target.setCustomValidity("");
+    }
   };
 
-  //   async function updateBill(billId) {
-  //     try {
-  //       const res = await fetch(
-  //         `http://localhost:8000/api/update-billing/${billId}`,
-  //         {
-  //           method: "POST",
-  //           body: JSON.stringify(billInfo),
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
-  //       const response = await res.json();
-  //       if (response.success === false) {
-  //         setError(response.message);
-  //         setSuccess("");
-  //       } else {
-  //         setSuccess("Bill has been updated successfully");
-  //         setError("");
-  //       }
-  //     } catch (err) {}
-  //   }
+  const handleInvalid = (e) => {
+    if (e.target.validity) {
+      e.target.setCustomValidity("Please enter a valid phone number");
+    }
+  };
+
+  async function updateBill(id) {
+    try {
+      const res = await fetch(
+        `https://pw-hack-backend-production.up.railway.app/api/update-billing/${id}`,
+        {
+          method: "POST",
+          body: JSON.stringify(billInfo),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const response = await res.json();
+      if (response.success === false) {
+        setError(response.message);
+        setSuccess("");
+      } else {
+        setSuccess("Bill has been updated successfully");
+        setBillId("");
+        setError("");
+        navigate("/billsTable");
+      }
+    } catch (err) {}
+  }
 
   async function createBill() {
     try {
-      const res = await fetch(`http://localhost:8000/api/add-billing`, {
-        method: "POST",
-        body: JSON.stringify(billInfo),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `https://pw-hack-backend-production.up.railway.app/api/add-billing`,
+        {
+          method: "POST",
+          body: JSON.stringify(billInfo),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const response = await res.json();
       if (response.success === false) {
         setError(response.message);
@@ -59,14 +84,18 @@ const CustormForm = ({ setError, setSuccess, billId }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // if (billId?.id === false) {
-    //   createBill();
-    // } else {
-    //   console.log(billId?.id);
-    //   updateBill(billId?.id);
-    // }
-    createBill();
+    if (billId.length) {
+      updateBill(billId);
+    } else {
+      createBill();
+    }
     e.target.reset();
+  };
+
+  const preventMinus = (e) => {
+    if (e.code === "Minus") {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -98,7 +127,10 @@ const CustormForm = ({ setError, setSuccess, billId }) => {
           <Form.Control
             type="tel"
             maxLength="11"
+            minLength="11"
             name="phone"
+            pattern="[0-9]+"
+            onInvalid={handleInvalid}
             placeholder="phone number"
             onChange={onChangeHandler}
             required
@@ -108,6 +140,8 @@ const CustormForm = ({ setError, setSuccess, billId }) => {
           <Form.Label>Payable Amount</Form.Label>
           <Form.Control
             type="number"
+            min="0"
+            onKeyPress={preventMinus}
             name="payedAmount"
             placeholder="amount"
             onChange={onChangeHandler}
